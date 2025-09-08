@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHub - Complete Functional Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .stuck-fix { /* Ensures no sticky states */ pointer-events: auto; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <img id="site-logo" src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/688f7e45-620c-4426-8122-58a3590d1752.png" alt="CampusHub logo featuring a stylized university emblem" class="w-10 h-10 rounded-full border-2 border-blue-500">
+                    <h1 id="nav-title" class="text-2xl font-bold text-blue-600">CampusHub</h1>
+                </div>
+                <button id="mobile-menu-toggle" class="md:hidden text-gray-700 focus:outline-none">
+                    <ion-icon name="menu-outline" size="large"></ion-icon>
+                </button>
+                <div class="hidden md:flex visitor-nav space-x-4">
+                    <button onclick="showSection('home-section')" class="text-gray-700 hover:text-blue-600 transition">Home</button>
+                    <button onclick="showSection('gallery-section')" class="text-gray-700 hover:text-blue-600 transition">Gallery</button>
+                    <button onclick="showSection('events-section')" class="text-gray-700 hover:text-blue-600 transition">Events</button>
+                    <button onclick="showSection('news-section')" class="text-gray-700 hover:text-blue-600 transition">News</button>
+                    <button onclick="showSection('auth-section')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition">Login</button>
+                </div>
+                <div class="hidden md:flex user-nav space-x-2 md:space-x-4 md:flex-wrap">
+                    <button onclick="showSection('dashboard-section')" class="text-xs md:text-sm text-gray-700 hover:text-blue-600 transition">Dashboard</button>
+                    <button onclick="showSection('upload-section')" class="text-xs md:text-sm text-gray-700 hover:text-blue-600 transition">Upload</button>
+                    <button onclick="showSection('gallery-section')" class="text-xs md:text-sm text-gray-700 hover:text-blue-600 transition">Gallery</button>
+                    <button onclick="showSection('profile-section')" class="text-xs md:text-sm text-gray-700 hover:text-blue-600 transition">Profile</button>
+                    <button onclick="showSection('admin-section')" class="hidden admin-only text-xs md:text-sm text-gray-700 hover:text-blue-600 transition">Admin</button>
+                    <button onclick="showSection('owner-edit-section')" class="hidden owner-only text-xs md:text-sm text-gray-700 hover:text-blue-600 transition">Owner Edit</button>
+                    <button onclick="logout()" class="text-xs md:text-sm bg-gray-600 text-white px-2 md:px-4 py-1 md:py-2 rounded-lg hover:bg-gray-800 transition">Logout</button>
+                    <span class="text-xs md:text-sm text-gray-700 hidden md:inline" id="user-welcome"></span>
+                </div>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden hidden mt-4 space-y-2">
+                <button onclick="showSection('home-section')" class="block w-full text-left text-gray-700 hover:text-blue-600 transition">Home</button>
+                <button onclick="showSection('gallery-section')" class="block w-full text-left text-gray-700 hover:text-blue-600 transition">Gallery</button>
+                <button onclick="showSection('events-section')" class="block w-full text-left text-gray-700 hover:text-blue-600 transition">Events</button>
+                <button onclick="showSection('news-section')" class="block w-full text-left text-gray-700 hover:text-blue-600 transition">News</button>
+                <button onclick="showSection('auth-section')" class="block w-full text-left bg-blue-600 text-white px-4 py-2 rounded-lg">Login</button>
+                <div class="hidden user-mobile-nav space-y-2">
+                    <button onclick="showSection('dashboard-section')" class="block w-full text-left text-gray-700 hover:text-blue-600">Dashboard</button>
+                    <button onclick="showSection('upload-section')" class="block w-full text-left text-gray-700 hover:text-blue-600">Upload</button>
+                    <button onclick="showSection('profile-section')" class="block w-full text-left text-gray-700 hover:text-blue-600">Profile</button>
+                    <button onclick="showSection('admin-section')" class="admin-only block w-full text-left text-gray-700 hover:text-blue-600">Admin</button>
+                    <button onclick="showSection('owner-edit-section')" class="owner-only block w-full text-left text-gray-700 hover:text-blue-600">Owner Edit</button>
+                    <button onclick="logout()" class="block w-full text-left bg-gray-600 text-white px-4 py-2 rounded-lg">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home-section" class="pt-20 pb-16 gradient-bg text-white fade-in">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <img id="hero-image" src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b59c879c-186e-446b-a822-44f9e62ca8cb.png" alt="Hero image of vibrant campus" class="mx-auto mb-8 rounded-lg shadow-2xl w-full max-w-4xl">
+            <h2 id="hero-title" class="text-4xl md:text-6xl font-bold mb-4">Welcome to CampusHub</h2>
+            <p id="hero-description" class="text-xl md:text-2xl mb-8">Your Ultimate College Community, Competitions, and Creations Platform</p>
+            <button id="get-started" onclick="getStarted()" class="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-800 transition duration-300 shadow-lg">Get Started</button>
+        </div>
+    </section>
+
+    <!-- Auth Section -->
+    <section id="auth-section" class="max-w-md mx-auto mt-10 bg-white p-8 rounded-xl shadow-xl hidden fade-in">
+        <div id="login-form" class="space-y-4">
+            <h3 class="text-3xl font-semibold mb-6 text-center">Login to CampusHub</h3>
+            <input type="text" id="login-username" placeholder="Username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <input type="password" id="login-password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-800 transition">Login</button>
+            <p class="text-center mt-4 text-sm">New user? <a onclick="switchAuth()" href="#" class="text-blue-600 hover:underline">Register</a></p>
+        </div>
+        <div id="register-form" class="hidden space-y-4">
+            <h3 class="text-3xl font-semibold mb-6 text-center">Register</h3>
+            <input type="text" id="reg-username" placeholder="Username" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <input type="password" id="reg-password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <select id="reg-role" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="student">Student</option>
+                <option value="admin">Admin</option>
+                <option value="owner">Owner</option>
+            </select>
+            <button onclick="handleRegister()" class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-900 transition">Register</button>
+            <p class="text-center mt-4 text-sm">Have account? <a onclick="switchAuth()" href="#" class="text-blue-600 hover:underline">Login</a></p>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard-section" class="max-w-7xl mx-auto mt-20 p-4 md:p-6 hidden fade-in">
+        <h3 class="text-2xl md:text-3xl font-semibold mb-8 text-center">My Dashboard</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-lg card-hover text-center">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7a357843-4125-470b-ac96-5e9348b933df.png" alt="User avatar" class="mx-auto mb-4 rounded-full border-4 border-blue-200">
+                <h4 class="text-lg md:text-xl font-semibold">Welcome back, <span id="dashboard-user"></span></h4>
+                <p class="text-gray-600">Role: <span id="dashboard-role"></span></p>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-lg shadow-lg">
+                <h4 class="text-lg font-semibold mb-4"><ion-icon name="time-outline" class="mr-2"></ion-icon> Recent Activity</h4>
+                <ul class="space-y-2 text-sm" id="activity-list">
+                    <li>• Uploaded poster → Pending approval</li>
+                    <li>• Voted in competition</li>
+                    <li>• Viewed gallery</li>
+                </ul>
+            </div>
+            <div class="bg-green-50 p-6 rounded-lg shadow-lg">
+                <h4 class="text-lg font-semibold mb-4"><ion-icon name="calendar-outline" class="mr-2"></ion-icon> Upcoming Events</h4>
+                <ul class="space-y-2 text-sm" id="events-dashboard-list">
+                    <li>• Photography Contest - Submit by Feb 15</li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-8 text-center">
+            <button onclick="showSection('gallery-section')" class="bg-purple-600 text-white px-6 py-3 roundedlg hover:bg-purple-800 transition">Explore Gallery</button>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery-section" class="max-w-7xl mx-auto mt-20 p-4 md:p-6">
+        <h3 class="text-2xl md:text-3xl font-semibold mb-8 text-center">Approved Gallery</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" id="gallery-grid"></div>
+        <div id="gallery-message" class="text-center text-gray-500 mt-8">Your approved uploads will appear here.</div>
+    </section>
+
+    <!-- Upload Section -->
+    <section id="upload-section" class="max-w-lg mx-auto mt-20 bg-white p-8 rounded-xl shadow-xl hidden fade-in">
+        <h3 class="text-3xl font-semibold mb-6 text-center">Upload Your Creation</h3>
+        <form id="upload-form" class="space-y-4">
+            <input type="file" id="upload-file" accept="image/*,video/*" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+           :::textarea
+<necessarily>
+            <textarea id="upload-desc" placeholder="Description (optional)" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <select id="upload-category" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="art">Art</option>
+                <option value="photo">Photography</option>
+                <option value="video">Video</option>
+                <option value="other">Other</option>
+            </select>
+            <button type="submit" class="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-900 transition">Upload</button>
+        </form>
+        <div id="upload-status" class="mt-4 text-center text-sm hidden">
+            <p id="upload-msg" class="text-green-600">Upload successful! Pending admin approval.</p>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events-section" class="max-w-7xl mx-auto mt-20 p-4 md:p-6">
+        <h3 class="text-2xl md:text-3xl font-semibold mb-8 text-center">Events & Competitions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="events-grid"></div>
+        <div id="create-event-section" class="max-w-md mx-auto mt-8 bg-white p-6 rounded-lg shadow-lg hidden">
+            <h4 class="font-semibold mb-4">Create New Event</h4>
+            <input type="text" id="new-event-name" placeholder="Event Name" class="w-full p-3 border rounded mb-4">
+            <input type="date" id="new-event-date" class="w-full p-3 border rounded mb-4">
+            <button onclick="createEvent()" class="w-full bg-green-600 text-white p-3 rounded hover:bg-green-900 transition">Create Event</button>
+        </div>
+        <div class="text-center mt-8">
+            <button onclick="toggleCreateEvent()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition">Create New Event</button>
+        </div>
+    </section>
+
+    <!-- Profile Section -->
+    <section id="profile-section" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow-xl hidden fade-in">
+        <h3 class="text-3xl font-semibold mb-6 text-center">Your Profile</h3>
+        <div class="space-y-4">
+            <input type="text" id="profile-username" placeholder="Username" class="w-full p-3 border rounded" readonly>
+            <input type="email" id="profile-email" placeholder="Email" class="w-full p-3 border rounded">
+            <select id="profile-class" class="w-full p-3 border rounded">
+                <option>Engineering</option>
+                <option>Arts</option>
+                <option>Science</option>
+            </select>
+            <textarea id="profile-bio" placeholder="Bio" rows="3" class="w-full p-3 border rounded"></textarea>
+            <button onclick="updateProfile()" class="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-800 transition">Update</button>
+        </div>
+    </section>
+
+    <!-- Admin Section -->
+    <section id="admin-section" class="max-w-7xl mx-auto mt-20 bg-white p-8 rounded-xl shadow-xl hidden fade-in">
+        <h3 class="text-3xl font-semibold mb-6">Admin Panel</h3>
+        <div class="mb-6">
+            <h4 class="text-xl font-semibold mb-4">Pending Uploads for Approval</h4>
+            <div id="pending-uploads" class="space-y-4"></div>
+            <button onclick="approveAll()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800 transition">Approve All</button>
+        </div>
+    </section>
+
+    <!-- Owner Edit Section -->
+    <section id="owner-edit-section" class="max-w-6xl mx-auto mt-20 bg-white p-8 rounded-xl shadow-xl hidden fade-in">
+        <h3 class="text-3xl font-semibold mb-6 text-center">Owner Edit Panel - Customize CampusHub</h3>
+        <div class="space-y-6">
+            <div class="border-b pb-4">
+                <h4 class="text-xl font-semibold mb-4"><ion-icon name="brush-outline" class="mr-2"></ion-icon> Branding</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="block">
+                        <span class="text-sm font-medium">Site Logo URL</span>
+                        <input type="url" id="edit-logo-url" placeholder="https://..." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-medium">Site Title</span>
+                        <input type="text" id="edit-site-title" placeholder="CampusHub" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-medium">Hero Title</span>
+                        <input type="text" id="edit-hero-title" placeholder="Welcome to CampusHub" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-medium">Hero Description</span>
+                        <textarea id="edit-hero-description" rows="3" placeholder="Your Ultimate Platform..." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                    </label>
+                </div>
+            </div>
+            <div class="border-b pb-4">
+                <h4 class="text-xl font-semibold mb-4"><ion-icon name="color-palette-outline" class="mr-2"></ion-icon> UI Customization</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="block">
+                        <span class="text-sm font-medium">Hero Background URL (Wallpaper)</span>
+                        <input type="url" id="edit-hero-bg" placeholder="https://..." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-medium">Footer Tagline</span>
+                        <input type="text" id="edit-footer-tagline" value="Building communities since 2023" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </label>
+                </div>
+            </div>
+            <div class="text-center">
+                <button onclick="saveEditingChanges()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition mr-4">Save Changes</button>
+                <button onclick="resetToDefault()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition mr-4">Reset to Default</button>
+                <button onclick="showSection('home-section')" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition">Go Home</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section id="news-section" class="max-w-6xl mx-auto mt-20 p-4 md:p-6">
+        <h3 class="text-2xl md:text-3xl font-semibold mb-8 text-center">Latest News & Announcements</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-lg card-hover">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/2f1002d4-749c-4947-85e8-0db7798f9d1f.png" alt="News image 1" class="w-full h-32 object-cover rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">New Competition Launched!</h4>
+                <p class="text-sm text-gray-600 mb-4">Photography contest open to all students.</p>
+                <button onclick="showSection('upload-section')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Learn More</button>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg card-hover">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/5eedc70e-3f5d-4867-9b70-e9ddfb51ad03.png" alt="News image 2" class="w-full h-32 object-cover rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">Tech Talk Series Coming Up</h4>
+                <p class="text-sm text-gray-600 mb-4">Learn about AI and tools.</p>
+                <button onclick="showSection('events-section')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800">Register</button>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg card-hover md:col-span-2 lg:col-span-1">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/05ab3d9a-ad93-4f73-ad4b-c7be2f7d895f.png" alt="News image 3" class="w-full h-32 object-cover rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">Student Art Exhibition</h4>
+                <p class="text-sm text-gray-600 mb-4">Winners revealed!</p>
+                <button onclick="showSection('gallery-section')" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-800">View Gallery</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-20 py-12">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <img id="footer-logo" src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/c1b866a8-bb25-4fe4-87f2-ff2c66bf7652.png" alt="Footer logo" class="mb-4 rounded">
+                <p id="footer-tagline" class="text-sm">Building stronger college communities since 2023</p>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Platform</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><button onclick="showSection('gallery-section')" class="hover:underline">Gallery</button></li>
+                    <li><button onclick="showSection('events-section')" class="hover:underline">Events</button></li>
+                    <li><button onclick="showSection('upload-section')" class="hover:underline">Upload</button></li>
+                    <li><button onclick="showSection('dashboard-section')" class="hover:underline">Dashboard</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Support</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><button onclick="showSection('news-section')" class="hover:underline">Help</button></li>
+                    <li><button onclick="showSection('news-section')" class="hover:underline">Contact</button></li>
+                    <li><a href="#" class="hover:underline">Terms</a></li>
+                    <li><a href="#" class="hover:underline">Privacy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-semibold mb-4">Connect</h4>
+                <p class="text-sm mb-2">Email: campus@hub.edu</p>
+                <img id="contact-image" src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b6d763f9-5c14-4f49-ade7-329afe0012db.png" alt="Contact image" class="rounded">
+            </div>
+        </div>
+        <div class="text-center mt-8 border-t border-gray-700 pt-8">
+            <p>© 2023 CampusHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Variables for state management
+        let currentUser = null;
+        let users = [];
+        let uploads = [];
+        let pendingUploads = [];
+        let events = [];
+        let votes = {};
+        let siteSettings = {
+            logoUrl: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/0b731255-d9ec-49b6-8579-f7c49c982aa1.png',
+            siteTitle: 'CampusHub - College Community Platform',
+            heroTitle: 'Welcome to CampusHub',
+            heroDescription: 'Your Ultimate College Community, Competitions, and Creations Platform',
+            heroBgUrl: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            footerTagline: 'Building stronger college communities since 2023'
+        };
+
+        // Initialize app
+        function initializeApp() {
+            loadFromLocalStorage();
+            applySiteSettings();
+            updateUI();
+            loadPendingUploads();
+            loadEvents();
+            loadGallery();
+        }
+
+        // Load data from localStorage
+        function loadFromLocalStorage() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+            users = JSON.parse(localStorage.getItem('users')) || [
+                { username: 'owner', password: 'owner123', role: 'owner' },
+                { username: 'admin', password: 'admin123', role: 'admin' },
+                { username: 'student', password: 'student123', role: 'student' }
+            ]);
+            uploads = JSON.parse(localStorage.getItem('uploads')) || [];
+            pendingUploads = JSON.parse(localStorage.getItem('pendingUploads')) || [];
+            events = JSON.parse(localStorage.getItem('events')) || [
+                { id: 1, name: 'Photography Contest', description: 'Submit photos', date: '2024-02-15' }
+            ];
+            votes = JSON.parse(localStorage.getItem('votes')) || {};
+            siteSettings = JSON.parse(localStorage.getItem('siteSettings')) || siteSettings;
+        }
+
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('users', JSON.stringify(users))
+            localStorage.setItem('uploads', JSON.stringify(uploads));
+            localStorage.setItem('pendingUploads', JSON.stringify(pendingUploads));
+            localStorage.setItem('events', JSON.stringify(events));
+            localStorage.setItem('votes', JSON.stringify(votes));
+            localStorage.setItem('siteSettings', JSON.stringify(siteSettings));
+        }
+
+        // Show a section and hide others
+        function showSection(sectionId) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            // Load content for specific sections
+            if (sectionId === 'gallery-section') loadGallery();
+            if (sectionId === 'events-section') loadEvents();
+            if (sectionId === 'profile-section') loadProfile();
+        }
+
+        // Update UI based on user state
+        function updateUI() {
+            if (currentUser) {
+                document.querySelector('.visitor-nav').classList.add('hidden');
+                document.querySelector('.user-nav').classList.remove('hidden');
+                document.querySelector('.user-mobile-nav').classList.remove('hidden');
+                document.getElementById('user-welcome').textContent = `Hi, ${currentUser.username}`;
+                document.getElementById('dashboard-user').textContent = currentUser.username;
+                document.getElementById('dashboard-role').textContent = currentUser.role;
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', currentUser.role !== 'admin' && currentUser.role !== 'owner'));
+                document.querySelectorAll('.owner-only').forEach(el => el.classList.toggle('hidden', currentUser.role !== 'owner'));
+                // Load dashboard data
+                loadDashboard();
+            } else {
+                document.querySelector('.visitor-nav').classList.remove('hidden');
+                document.querySelector('.user-nav').classList.add('hidden');
+                document.querySelector('.user-mobile-nav').classList.add('hidden');
+                showSection('home-section');
+            }
+        }
+
+        // Get started button
+        function getStarted() {
+            if (!currentUser) {
+                showSection('auth-section');
+            } else {
+                showSection('dashboard-section');
+            }
+        }
+
+        // Switch auth forms
+        function switchAuth() {
+            document.getElementById('login-form').classList.toggle('hidden');
+            document.getElementById('register-form').classList.toggle('hidden');
+        }
+
+        // Handle login
+        function handleLogin() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                currentUser = user;
+                saveToLocalStorage();
+                updateUI();
+                note(`Login successful, welcome ${user.username}!`);
+            } else {
+                note('Invalid credentials');
+            }
+        }
+
+        // Handle register
+        function handleRegister() {
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const role = document.getElementById('reg-role').value;
+            if (users.find(u => u.username === username)) {
+                note('Username exists');
+                return;
+            }
+            const newUser = { username, password, role };
+            users.push(newUser);
+            currentUser = newUser;
+            saveToLocalStorage();
+            updateUI();
+            note('Registration successful!');
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            saveToLocalStorage();
+            updateUI();
+            note('Logged out');
+        }
+
+        // Load dashboard
+        function loadDashboard() {
+            document.getElementById('activity-list').innerHTML = `
+                <li>• Uploaded ${uploads.length} items</li>
+                <li>• Participated in ${Object.keys(votes).length} competitions</li>
+            `;
+        }
+
+        // Load gallery
+        function loadGallery() {
+            const grid = document.getElementById('gallery-grid');
+            const approvedUploads = uploads.filter(u => u.approved);
+            if (approvedUploads.length > 0) {
+                grid.innerHTML = approvedUploads.map(upload => `
+                    <div class="bg-white p-4 rounded-lg shadow-lg card-hover">
+                        <img src="${upload.fileUrl}" alt="${upload.description}" class="w-full h-48 object-cover rounded-lg">
+                        <h5 class="font-semibold mt-2">${upload.filename}</h5>
+                        <p class="text-sm text-gray-600">By: ${upload.student}</p>
+                        <p class="text-xs text-gray-500 mb-2">${upload.description}</p>
+                        <button onclick="vote(${upload.id})" class="bg-green-500 text-white px-3 py-1 rounded text-sm">Vote</button>
+                    </div>
+                `).join('');
+            } else {
+                grid.innerHTML = '<p class="text-gray-500 col-span-full text-center">No approved uploads yet</p>';
+            }
+        }
+
+        // Vote for upload
+        function vote(uploadId) {
+            if (!currentUser) return note('Login to vote');
+            if (!votes[currentUser.username]) votes[currentUser.username] = {};
+            votes[currentUser.username][uploadId] = true;
+            saveToLocalStorage();
+            note('Vote cast!');
+        }
+
+        // Upload form handler
+        document.getElementById('upload-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!currentUser) return note('Please login to upload');
+            const fileInput = document.getElementById('upload-file');
+            const file = fileInput.files[0];
+            if (!file) return note('Select a file');
+            const description = document.getElementById('upload-desc').value;
+            const category = document.getElementById('upload-category').value;
+            // Simulate file upload (in real app, upload to server)
+            const newUpload = {
+                id: Date.now(),
+                filename: file.name,
+                fileUrl: URL.createObjectURL(file), // In real app, return URL from server
+                student: currentUser.username,
+                description,
+                category,
+                approved: false
+            };
+            pendingUploads.push(newUpload);
+            saveToLocalStorage();
+            loadPendingUploads();
+            document.getElementById('upload-status').classList.remove('hidden');
+            document.getElementById('upload-msg').textContent = 'Upload successful! Pending admin approval.';
+            fileInput.value = '';
+            document.getElementById('upload-desc').value = '';
+        });
+
+        // Load pending uploads
+        function loadPendingUploads() {
+            if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'owner')) return;
+            const container = document.getElementById('pending-uploads');
+            container.innerHTML = pendingUploads.map(({ filename, student, description }, index) => `
+                <div class="border p-4 rounded-lg bg-gray-50">
+                    <p><strong>${filename}</strong> by ${student}</p>
+                    <p class="text-sm text-gray-600">${description}</p>
+                    <button onclick="approveUpload(${index})" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Approve</button>
+                </div>
+            `).join('');
+        }
+
+        // Approve upload
+        function approveUpload(index) {
+            const upload = pendingUploads.splice(index, 1)[0];
+            upload.approved = true;
+            uploads.push(upload);
+            saveToLocalStorage();
+            loadGallery();
+            loadPendingUploads();
+            note('Upload approved!');
+        }
+
+        // Approve all
+        function approveAll() {
+            uploads.push(...pendingUploads.map(u => ({ ...u, approved: true })));
+            pendingUploads = [];
+            saveToLocalStorage();
+            loadGallery();
+            loadPendingUploads();
+            note('All uploads approved!');
+        }
+
+        // Toggle create event
+        function toggleCreateEvent() {
+            document.getElementById('create-event-section').classList.toggle('hidden');
+        }
+
+        // Create event
+        function createEvent() {
+            const name = document.getElementById('new-event-name').value.trim();
+            const date = document.getElementById('new-event-date').value;
+            if (!name || !date) return note('Fill all fields');
+            const newEvent = { id: Date.now(), name, date };
+            events.push(newEvent);
+            saveToLocalStorage();
+            loadEvents();
+            document.getElementById('new-event-name').value = '';
+            document.getElementById('new-event-date').value = '';
+            document.getElementById('create-event-section').classList.add('hidden');
+            note('Event created!');
+        }
+
+        // Load events
+        function loadEvents() {
+            const grid = document.getElementById('events-grid');
+            grid.innerHTML = events.map(event => `
+                <div class="bg-blue-50 p-6 rounded-lg shadow-lg">
+                    <h4 class="font-semibold mb-2">${event.name}</h4>
+                    <p class="text-sm mb-4">${event.description || 'Join us!'}</p>
+                    <p class="text-sm text-gray-600"><strong>Date:</strong> ${event.date}</p>
+                    <button onclick="registerForEvent(${event.id})" class="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-800">Register</button>
+                </div>
+            `).join('');
+            // Load events in dashboard
+            document.getElementById('events-dashboard-list').innerHTML = events.map(event => `<li>• ${event.name} - ${event.date}</li>`).join('');
+        }
+
+        // Register for event (simulate)
+        function registerForEvent(eventId) {
+            note('Registered for event!');
+        }
+
+        // Load profile
+        function loadProfile() {
+            if (!currentUser) return;
+            document.getElementById('profile-username').value = currentUser.username;
+            // Load other profile fields if stored
+        }
+
+        // Update profile
+        function updateProfile() {
+            note('Profile updated!');
+        }
+
+        // Apply site settings
+        function applySiteSettings() {
+            document.getElementById('site-title').textContent = siteSettings.siteTitle;
+            document.getElementById('nav-title').textContent = 'CampusHub';
+            document.getElementById('site-logo').src = siteSettings.logoUrl;
+            document.getElementById('hero-title').textContent = siteSettings.heroTitle;
+            document.getElementById('hero-description').textContent = siteSettings.heroDescription;
+            document.getElementById('hero-image').style.backgroundImage = `url(${siteSettings.heroBgUrl})`;
+            document.getElementById('footer-tagline').textContent = siteSettings.footerTagline;
+        }
+
+        // Save editing changes
+        function saveEditingChanges() {
+            siteSettings.logoUrl = document.getElementById('edit-logo-url').value || siteSettings.logoUrl;
+            siteSettings.siteTitle = document.getElementById('edit-site-title').value || siteSettings.siteTitle;
+            siteSettings.heroTitle = document.getElementById('edit-hero-title').value || siteSettings.heroTitle;
+            siteSettings.heroDescription = document.getElementById('edit-hero-description').value || siteSettings.heroDescription;
+            siteSettings.heroBgUrl = document.getElementById('edit-hero-bg').value || siteSettings.heroBgUrl;
+            siteSettings.footerTagline = document.getElementById('edit-footer-tagline').value || siteSettings.footerTagline;
+            saveToLocalStorage();
+            applySiteSettings();
+            note('Changes saved!');
+        }
+
+        // Reset to default
+        function resetToDefault() {
+            siteSettings = {
+                logoUrl: 'https://placehold.co/128x128/2563eb/ffffff?text=CH',
+                siteTitle: 'CampusHub - College Community Platform',
+                heroTitle: 'Welcome to CampusHub',
+                heroDescription: 'Your Ultimate College Community, Competitions, and Creations Platform',
+                heroBgUrl: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                footerTagline: 'Building stronger college communities since 2023'
+            };
+            saveToLocalStorage();
+            applySiteSettings();
+            note('Reset to default!');
+        }
+
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Note function for alerts
+        function note(msg) {
+            alert(msg);
+        }
+
+        // Initialize on page load
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
+</content>
+</create_file>
