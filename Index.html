@@ -1,0 +1,566 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CampusHub — All-in-One Prototype</title>
+  <!-- Tailwind CDN for quick responsive styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <style>
+    :root{
+      --primary-gradient: linear-gradient(90deg,#FFC0CB,#FF69B4);
+      --secondary: #F08080;
+      --outline-border: #2F4F4F;
+      --card: #ffffff;
+    }
+    body{ font-family: 'Poppins', system-ui, -apple-system, Arial; background: #f3f4f6; }
+    .primary-btn{ background: var(--primary-gradient); color: white; }
+    .secondary-btn{ background: var(--secondary); color: white; }
+    .outline-btn{ background: transparent; border:2px solid var(--outline-border); color:var(--outline-border); }
+    /* Stories ring */
+    .story-ring{ width:72px; height:72px; border-radius:9999px; padding:4px; background: linear-gradient(45deg,#ff7aa2,#ffd1e6); display:flex; align-items:center; justify-content:center }
+    .story-img{ width:58px; height:58px; border-radius:9999px; object-fit:cover; border:3px solid #fff; }
+    /* watermark for private images */
+    .watermark{ position:relative; display:inline-block }
+    .watermark img{ display:block }
+    .watermark::after{ content:"CampusHub"; position:absolute; right:6px; bottom:6px; opacity:0.35; background:rgba(255,255,255,0.2); padding:4px 8px; border-radius:6px; font-weight:600; font-size:12px }
+    /* small helpers */
+    .hidden-section{ display:none }
+    .card-hover{ transition:transform .15s ease, box-shadow .15s; }
+    .card-hover:hover{ transform:translateY(-6px); box-shadow:0 10px 30px rgba(2,6,23,0.08); }
+    /* prevent image download via right click (soft) */
+    img[draggable="false"]{ -webkit-user-drag: none; user-select:none }
+  </style>
+</head>
+<body>
+  <!-- Top Navigation -->
+  <header class="bg-white shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img id="siteLogo" src="https://placehold.co/80x80/ffd1e6/ff69b4?text=CH" alt="logo" class="w-12 h-12 rounded-full border-2 border-pink-200">
+        <div>
+          <div id="siteTitle" class="font-bold text-lg text-pink-600">CampusHub</div>
+          <div id="siteTag" class="text-xs text-gray-500">College community & competitions</div>
+        </div>
+      </div>
+      <nav>
+        <div id="visitorNav" class="flex items-center gap-4">
+          <button class="text-gray-700 hover:text-pink-600" onclick="showSection('home')">Home</button>
+          <button class="text-gray-700 hover:text-pink-600" onclick="showSection('gallery')">Gallery</button>
+          <button class="text-gray-700 hover:text-pink-600" onclick="showSection('competitions')">Competitions</button>
+          <button class="text-gray-700 hover:text-pink-600" onclick="showSection('winners')">Winners</button>
+          <button id="loginBtn" class="px-4 py-2 rounded-lg primary-btn" onclick="openAuth('login')">Login / Signup</button>
+        </div>
+        <div id="userNav" class="hidden items-center gap-3">
+          <button class="px-3 py-2 rounded-lg outline-btn" onclick="showSection('dashboard')">Dashboard</button>
+          <button class="px-3 py-2 rounded-lg" onclick="showSection('upload')">Upload</button>
+          <button class="px-3 py-2 rounded-lg" onclick="showSection('messages')">Messages</button>
+          <div class="relative">
+            <button id="notifBtn" class="px-3 py-2 rounded-lg outline-btn" onclick="openNotifications()">🔔 <span id="notifCount" class="text-sm ml-1">0</span></button>
+          </div>
+          <div class="flex items-center gap-2">
+            <img id="navAvatar" src="https://placehold.co/40x40/ddd/aaa" class="w-9 h-9 rounded-full" alt="avatar">
+            <div id="navName" class="text-sm">Guest</div>
+            <button class="px-3 py-2 rounded-lg" onclick="logout()">Logout</button>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>  <!-- Main content wrapper -->  <main class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Home / Dashboard -->
+    <section id="home" class="mb-12">
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-2">
+          <!-- Hero + Stories -->
+          <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h2 class="text-2xl font-bold mb-2">Campus Highlights</h2>
+            <p class="text-sm text-gray-600 mb-4">Short updates from events, students, and admin</p>
+            <div id="stories" class="flex gap-3 overflow-x-auto pb-2"></div>
+          </div><!-- Reels / Short Videos -->
+      <div class="bg-white p-6 rounded-lg shadow mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-semibold">Campus Reels</h3>
+          <button class="secondary-btn px-3 py-1 rounded-md" onclick="openReels()">View Reels</button>
+        </div>
+        <div id="reelsRow" class="grid grid-cols-3 gap-3"></div>
+      </div>
+
+      <!-- Competition Gallery Grid -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-semibold">Competition Entries</h3>
+          <div class="text-sm text-gray-500">Vote to support your favorites</div>
+        </div>
+        <div id="compGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+    </div>
+
+    <aside class="space-y-4">
+      <!-- Announcements -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h4 class="font-semibold mb-2">Announcements</h4>
+        <ul id="announcements" class="text-sm text-gray-600 space-y-2"></ul>
+      </div>
+
+      <!-- Small winners widget -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h4 class="font-semibold mb-2">Top Winner</h4>
+        <div id="topWinner" class="text-sm text-gray-700">No winners yet</div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h4 class="font-semibold mb-2">Quick Actions</h4>
+        <button class="primary-btn w-full py-2 rounded mb-2" onclick="getStarted()">Get Started</button>
+        <button class="outline-btn w-full py-2 rounded" onclick="openAuth('register')">Register</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- Gallery Section (public) -->
+<section id="gallery" class="hidden-section mb-12">
+  <h2 class="text-2xl font-bold mb-4">Gallery — Approved Works</h2>
+  <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+</section>
+
+<!-- Competitions Listing -->
+<section id="competitions" class="hidden-section mb-12">
+  <h2 class="text-2xl font-bold mb-4">Competitions</h2>
+  <div id="competitionsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+</section>
+
+<!-- Winners -->
+<section id="winners" class="hidden-section mb-12">
+  <h2 class="text-2xl font-bold mb-4">Hall of Fame</h2>
+  <div id="winnersGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+</section>
+
+<!-- Dashboard (user area) -->
+<section id="dashboard" class="hidden-section mb-12">
+  <h2 class="text-2xl font-bold mb-4">My Dashboard</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="md:col-span-2">
+      <div class="bg-white p-6 rounded-lg shadow mb-4">
+        <div class="flex items-center gap-4">
+          <img id="profileAvatar" src="https://placehold.co/120x120/ddd/aaa" class="w-20 h-20 rounded-full" alt="profile">
+          <div>
+            <div id="profileName" class="font-semibold text-xl">Guest</div>
+            <div id="profileRole" class="text-sm text-gray-600">Role: none</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow mb-4">
+        <h4 class="font-semibold mb-2">My Feed</h4>
+        <div id="myFeed" class="space-y-4"></div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h4 class="font-semibold mb-2">My Activity</h4>
+        <div id="myActivity" class="text-sm text-gray-600"></div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="bg-white p-6 rounded-lg shadow mb-4">
+        <h4 class="font-semibold mb-2">Quick Upload</h4>
+        <form id="quickUploadForm" class="space-y-3">
+          <input type="file" id="quickFile" accept="image/*,video/*" class="w-full text-sm">
+          <input type="text" id="quickDesc" placeholder="Short description" class="w-full p-2 border rounded text-sm">
+          <select id="quickVisibility" class="w-full p-2 border rounded text-sm">
+            <option value="public">Public (show to all)</option>
+            <option value="friends">Friends only</option>
+            <option value="private">Private</option>
+          </select>
+          <button class="primary-btn w-full py-2 rounded" type="button" onclick="quickUpload()">Upload</button>
+        </form>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow mb-4">
+        <h4 class="font-semibold mb-2">Friends</h4>
+        <div id="friendsList" class="text-sm text-gray-700"></div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h4 class="font-semibold mb-2">Banned / Appeals</h4>
+        <div id="banInfo" class="text-sm text-gray-700"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- Upload Section (full) -->
+<section id="upload" class="hidden-section mb-12">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow">
+    <h2 class="font-semibold text-xl mb-4">Upload Creation</h2>
+    <form id="uploadForm" class="space-y-3">
+      <input type="file" id="uploadFile" accept="image/*,video/*" required class="w-full text-sm">
+      <input type="text" id="uploadTitle" placeholder="Title" class="w-full p-2 border rounded">
+      <textarea id="uploadDesc" rows="3" placeholder="Description" class="w-full p-2 border rounded"></textarea>
+      <select id="uploadVisibility" class="w-full p-2 border rounded">
+        <option value="public">Public (needs admin approval)</option>
+        <option value="friends">Friends (visible to followers)</option>
+        <option value="private">Private (only you & admin/owner)</option>
+      </select>
+      <label class="flex items-center gap-2"><input type="checkbox" id="submitToComp"> Submit to competition (choose below)</label>
+      <select id="selectComp" class="w-full p-2 border rounded hidden"></select>
+      <div class="flex gap-2">
+        <button class="primary-btn px-4 py-2 rounded" type="button" onclick="submitUpload()">Submit</button>
+        <button class="outline-btn px-4 py-2 rounded" type="button" onclick="clearUploadForm()">Clear</button>
+      </div>
+    </form>
+    <div id="uploadStatus" class="mt-3 text-sm text-green-600 hidden">Uploaded and pending approval</div>
+  </div>
+</section>
+
+<!-- Messages / Chat Section -->
+<section id="messages" class="hidden-section mb-12">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="md:col-span-2">
+      <div class="bg-white p-4 rounded-lg shadow mb-4">
+        <h4 class="font-semibold">World Chat</h4>
+        <div id="globalChat" class="h-64 overflow-y-auto border rounded p-2 bg-gray-50"></div>
+        <div class="flex gap-2 mt-2">
+          <input id="globalInput" class="flex-1 p-2 border rounded" placeholder="Say something to campus" />
+          <button class="secondary-btn px-3 py-2 rounded" onclick="sendGlobal()">Send</button>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h4 class="font-semibold">Private Chat</h4>
+        <div id="privateChatList" class="space-y-2"></div>
+        <div id="privateChatWindow" class="hidden mt-3">
+          <div id="privateMessages" class="h-48 overflow-y-auto border rounded p-2 bg-gray-50 mb-2"></div>
+          <div class="flex gap-2"><input id="privateInput" class="flex-1 p-2 border rounded"><button class="secondary-btn px-3 py-2 rounded" onclick="sendPrivate()">Send</button></div>
+        </div>
+      </div>
+    </div>
+
+    <aside>
+      <div class="bg-white p-4 rounded-lg shadow mb-4">
+        <h4 class="font-semibold">Admin Help Threads</h4>
+        <div id="helpThreads" class="text-sm"></div>
+      </div>
+
+      <div class="bg-white p-4 rounded-lg shadow">
+        <h4 class="font-semibold">Users Online</h4>
+        <div id="onlineList" class="text-sm"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- Admin Panel -->
+<section id="admin" class="hidden-section mb-12">
+  <div class="bg-white p-6 rounded-lg shadow">
+    <h2 class="text-xl font-semibold">Admin Panel</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div>
+        <h4 class="font-semibold">Pending Uploads</h4>
+        <div id="pendingList" class="space-y-3 mt-3"></div>
+      </div>
+      <div>
+        <h4 class="font-semibold">Create Competition</h4>
+        <input id="compName" placeholder="Title" class="w-full p-2 border rounded mb-2">
+        <input id="compEnds" type="date" class="w-full p-2 border rounded mb-2">
+        <button class="primary-btn px-4 py-2 rounded" onclick="createCompetition()">Create</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Owner Panel -->
+<section id="owner" class="hidden-section mb-12">
+  <div class="bg-white p-6 rounded-lg shadow">
+    <h2 class="text-xl font-semibold">Owner Control Panel</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div>
+        <label class="block text-sm">Site Title</label>
+        <input id="ownerSiteTitle" class="w-full p-2 border rounded mb-2">
+        <label class="block text-sm">Hero Title</label>
+        <input id="ownerHeroTitle" class="w-full p-2 border rounded mb-2">
+        <label class="block text-sm">Logo URL</label>
+        <input id="ownerLogoUrl" class="w-full p-2 border rounded mb-2">
+        <div class="flex gap-2">
+          <button class="primary-btn px-4 py-2 rounded" onclick="saveOwnerSettings()">Save</button>
+          <button class="outline-btn px-4 py-2 rounded" onclick="resetBranding()">Reset</button>
+        </div>
+      </div>
+      <div>
+        <h4 class="font-semibold">Admins</h4>
+        <div id="adminsList" class="space-y-2 mb-3"></div>
+        <input id="newAdminUser" placeholder="new admin username" class="w-full p-2 border rounded mb-2">
+        <input id="newAdminPass" placeholder="password" type="password" class="w-full p-2 border rounded mb-2">
+        <button class="secondary-btn px-4 py-2 rounded" onclick="createAdmin()">Create Admin</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Notifications modal (simple) -->
+<div id="notifModal" class="fixed right-6 bottom-6 bg-white p-4 rounded shadow hidden z-50">
+  <div class="font-semibold mb-2">Notifications</div>
+  <div id="notifList" class="text-sm max-h-60 overflow-y-auto"></div>
+  <div class="mt-2 text-right"><button class="outline-btn px-3 py-1 rounded" onclick="closeNotif()">Close</button></div>
+</div>
+
+  </main>  <!-- Footer -->  <footer class="bg-gray-900 text-white py-8 mt-12">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <h4 class="font-bold">CampusHub</h4>
+        <p class="text-sm">Community-driven platform for college competitions & showcases.</p>
+      </div>
+      <div>
+        <h4 class="font-bold">Quick Links</h4>
+        <ul class="text-sm space-y-1"><li><button onclick="showSection('gallery')" class="hover:underline">Gallery</button></li><li><button onclick="showSection('competitions')" class="hover:underline">Competitions</button></li></ul>
+      </div>
+      <div>
+        <h4 class="font-bold">Contact</h4>
+        <p class="text-sm">campus@hub.edu</p>
+      </div>
+    </div>
+  </footer>  <!-- Single-file JS (all-in-one app) -->  <script>
+    /* -------------------------------
+       Local DB wrapper & initial seeds
+       -------------------------------*/
+    const DB = {
+      prefix: 'campushub_',
+      get(key){ try{ return JSON.parse(localStorage.getItem(this.prefix+key)); }catch(e){return null;} },
+      set(key,val){ localStorage.setItem(this.prefix+key, JSON.stringify(val)); },
+      del(key){ localStorage.removeItem(this.prefix+key); }
+    };
+
+    function uid(prefix='u'){ return prefix+'_'+Math.random().toString(36).slice(2,9); }
+
+    function seedIfNeeded(){
+      if(!DB.get('users')){
+        const users = [
+          {uid:'owner_1', username:'owner', password:'campushub', role:'owner', name:'Owner', avatar:null, followers:[], following:[], bio:'', bannedUntil:0},
+          {uid:'admin_1', username:'admin', password:'123', role:'admin', name:'Admin', avatar:null, followers:[], following:[], bio:'', bannedUntil:0},
+          {uid:'student_1', username:'student', password:'123', role:'student', name:'Student A', avatar:null, followers:[], following:[], bio:'', bannedUntil:0}
+        ];
+        DB.set('users', users);
+      }
+      if(!DB.get('siteVersion')) DB.set('siteVersion', 1);
+      if(!DB.get('posts')) DB.set('posts', []);
+      if(!DB.get('uploads')) DB.set('uploads', []);
+      if(!DB.get('competitions')) DB.set('competitions', []);
+      if(!DB.get('votes')) DB.set('votes', {});
+      if(!DB.get('globalChat')) DB.set('globalChat', []);
+      if(!DB.get('privateChats')) DB.set('privateChats', {});
+      if(!DB.get('helpThreads')) DB.set('helpThreads', []);
+      if(!DB.get('notifications')) DB.set('notifications', {});
+      if(!DB.get('stories')) DB.set('stories', []);
+      if(!DB.get('reels')) DB.set('reels', []);
+    }
+
+    seedIfNeeded();
+
+    /* -------------------------------
+       App State
+       -------------------------------*/
+    let currentUser = DB.get('currentUser') || null;
+    let checkingSiteVersion = DB.get('siteVersion');
+
+    /* -------------------------------
+       Utility helpers
+       -------------------------------*/
+    function saveUsers(arr){ DB.set('users', arr); }
+    function users(){ return DB.get('users') || []; }
+    function posts(){ return DB.get('posts') || []; }
+    function setPosts(p){ DB.set('posts', p); }
+    function uploads(){ return DB.get('uploads') || []; }
+    function setUploads(u){ DB.set('uploads', u); }
+    function comps(){ return DB.get('competitions') || []; }
+    function setComps(c){ DB.set('competitions', c); }
+    function vs(){ return DB.get('votes') || {}; }
+    function setVotes(x){ DB.set('votes', x); }
+
+    function notifyUser(uid, msg){ const N = DB.get('notifications') || {}; if(!N[uid]) N[uid]=[]; N[uid].push({id:uid+'_'+Date.now(),msg,ts:Date.now()}); DB.set('notifications',N); }
+
+    function toast(msg){ // simple
+      console.log('TOAST',msg); alert(msg); // replace with nice toast later
+    }
+
+    /* -------------------------------
+       UI helpers
+       -------------------------------*/
+    function showSection(id){ document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden-section')); const el = document.getElementById(id); if(el) el.classList.remove('hidden-section'); if(id==='home'){ renderHome(); } if(id==='gallery'){ renderGallery(); } if(id==='competitions'){ renderCompetitions(); } if(id==='dashboard'){ renderDashboard(); } if(id==='upload'){ prepareUploadForm(); } if(id==='messages'){ renderMessages(); } if(id==='admin'){ renderPending(); } if(id==='owner'){ renderOwner(); } }
+
+    function openAuth(mode='login'){ // simple modal-like behavior by showing auth area or redirect to home auth section
+      // here we scroll to auth forms at top
+      showSection('home'); window.scrollTo({top:0,behavior:'smooth'});
+      // display simple prompt
+      if(mode==='login'){
+        const u = prompt('Login username:' ); if(!u) return; const p = prompt('Password:'); login(u,p);
+      } else {
+        const un = prompt('Choose username (students only):'); if(!un) return; const pw = prompt('Choose password:'); register(un,pw,'student');
+      }
+    }
+
+    /* -------------------------------
+       Auth & Users
+       -------------------------------*/
+    function login(username,password){ const u = users().find(x=>x.username===username && x.password===password); if(!u){ toast('Invalid credentials'); return; } currentUser = u; DB.set('currentUser',u); toast('Welcome '+u.name); updateNav(); showSection('dashboard'); }
+
+    function logout(){ currentUser = null; DB.del('currentUser'); updateNav(); showSection('home'); }
+
+    function register(username,password,role='student'){
+      if(!username || !password){ toast('Provide username & password'); return; }
+      const all = users(); if(all.some(x=>x.username===username)){ toast('Username exists'); return; }
+      const u = {uid:uid('u'), username, password, role, name:username, avatar:null, followers:[],following:[],bio:'',bannedUntil:0}; all.push(u); saveUsers(all); currentUser=u; DB.set('currentUser',u); updateNav(); toast('Registered & logged in'); showSection('dashboard');
+    }
+
+    function updateNav(){ if(currentUser){ document.getElementById('visitorNav').classList.add('hidden'); document.getElementById('userNav').classList.remove('hidden'); document.getElementById('navAvatar').src = currentUser.avatar || 'https://placehold.co/40x40/ddd/aaa'; document.getElementById('navName').textContent = currentUser.name; document.getElementById('loginBtn').style.display = 'none'; } else { document.getElementById('visitorNav').classList.remove('hidden'); document.getElementById('userNav').classList.add('hidden'); document.getElementById('loginBtn').style.display = 'inline-block'; } }
+
+    /* -------------------------------
+       Stories & Reels
+       -------------------------------*/
+    function renderStories(){ const s = DB.get('stories') || []; const el = document.getElementById('stories'); el.innerHTML=''; if(s.length===0){ // seed placeholder
+        for(let i=1;i<=5;i++){ const div=document.createElement('div'); div.className='story-ring'; div.innerHTML=`<img src="https://placehold.co/60x60/ffe4ec/ff69b4?text=S${i}" class="story-img"/>`; el.appendChild(div); }
+        return;
+      }
+      s.forEach(st=>{ const div=document.createElement('div'); div.className='story-ring'; div.title = st.title || 'Highlight'; div.innerHTML=`<img src="${st.thumb}" class="story-img"/>`; el.appendChild(div); }); }
+
+    function renderReels(){ const r = DB.get('reels') || []; const el = document.getElementById('reelsRow'); el.innerHTML=''; if(r.length===0){ for(let i=0;i<3;i++){ const card=document.createElement('div'); card.className='bg-gray-50 p-4 rounded'; card.innerHTML=`<div class='w-full h-36 bg-gradient-to-br from-pink-200 to-pink-100 flex items-center justify-center rounded'>Reel ${i+1}</div>`; el.appendChild(card);} return; }
+      r.forEach(item=>{ const card=document.createElement('div'); card.className='bg-gray-50 p-2 rounded'; card.innerHTML=`<div class='w-full h-36 bg-black text-white flex items-center justify-center rounded'>Reel</div>`; el.appendChild(card); }); }
+
+    /* -------------------------------
+       Posts, Uploads & Approval
+       -------------------------------*/
+    function prepareUploadForm(){ // populate competitions
+      const select = document.getElementById('selectComp'); select.innerHTML=''; const cs = comps(); if(cs.length===0){ select.classList.add('hidden'); } else { select.classList.remove('hidden'); cs.forEach(c=>{ const opt=document.createElement('option'); opt.value=c.id; opt.textContent=c.title; select.appendChild(opt); }); }
+      // restore draft
+      const draft = DB.get('draft_upload'); if(draft && draft.owner=== (currentUser && currentUser.uid)){ document.getElementById('uploadTitle').value = draft.title||''; document.getElementById('uploadDesc').value = draft.desc||''; document.getElementById('uploadVisibility').value = draft.visibility||'public'; }
+    }
+
+    function submitUpload(){ if(!currentUser){ toast('Login first'); return; }
+      const fileInput = document.getElementById('uploadFile'); const title = document.getElementById('uploadTitle').value.trim(); const desc = document.getElementById('uploadDesc').value.trim(); const visibility = document.getElementById('uploadVisibility').value; const toComp = document.getElementById('submitToComp').checked; const compId = document.getElementById('selectComp').value || null;
+      if(!fileInput.files[0]){ toast('Choose file'); return; }
+      const f = fileInput.files[0]; const reader = new FileReader(); reader.onload = function(ev){ const dataUrl = ev.target.result; const upls = uploads(); const newU = { id: uid('up'), filename: f.name, mime: f.type, dataUrl, title, desc, owner: currentUser.uid, visibility, approved:false, compId, ts:Date.now() }; upls.push(newU); setUploads(upls); toast('Uploaded — pending approval'); document.getElementById('uploadStatus').classList.remove('hidden'); // notify admins
+        const admins = users().filter(u=>u.role==='admin' || u.role==='owner'); admins.forEach(a=>notifyUser(a.uid, `New upload pending: ${title || f.name}`)); renderPending(); };
+      reader.readAsDataURL(f);
+    }
+
+    function renderPending(){ const list = document.getElementById('pendingList'); list.innerHTML=''; const ups = uploads(); if(ups.length===0){ list.innerHTML='<div class="text-sm text-gray-500">No pending uploads</div>'; return; }
+      ups.forEach(u=>{ const d = document.createElement('div'); d.className='p-3 border rounded'; d.innerHTML = `
+        <div class='flex gap-3'>
+          <div class='w-20 h-16 bg-gray-200 overflow-hidden'><img src='${u.dataUrl}' class='w-full h-full object-cover' draggable='false' oncontextmenu='return false;'></div>
+          <div class='flex-1'>
+            <div class='font-semibold'>${u.title || u.filename}</div>
+            <div class='text-xs text-gray-500'>by ${userById(u.owner).name || u.owner}</div>
+            <div class='text-sm mt-2'>${u.desc || ''}</div>
+          </div>
+          <div class='flex flex-col gap-2'>
+            <button class='primary-btn px-3 py-1 rounded' onclick="approveUpload('${u.id}')">Approve</button>
+            <button class='outline-btn px-3 py-1 rounded' onclick="rejectUpload('${u.id}')">Reject</button>
+          </div>
+        </div>
+      `; list.appendChild(d); }); }
+
+    function approveUpload(id){ const ups = uploads(); const idx = ups.findIndex(x=>x.id===id); if(idx===-1) return; const item = ups.splice(idx,1)[0]; item.approved = true; // push to posts
+      const allp = posts(); allp.push(item); setPosts(allp); setUploads(ups); // notify owner
+      notifyUser(item.owner, `Your upload "${item.title || item.filename}" was approved.`); renderPending(); renderHome(); }
+
+    function rejectUpload(id){ const ups = uploads(); const idx = ups.findIndex(x=>x.id===id); if(idx===-1) return; const item = ups.splice(idx,1)[0]; setUploads(ups); notifyUser(item.owner, `Your upload "${item.title || item.filename}" was rejected.`); renderPending(); }
+
+    function userById(uid){ return users().find(u=>u.uid===uid) || {name:uid}; }
+
+    /* -------------------------------
+       Competitions & Voting
+       -------------------------------*/
+    function createCompetition(){ const title = document.getElementById('compName').value.trim(); const ends = document.getElementById('compEnds').value; if(!title || !ends){ toast('Provide title & end date'); return; } const c = comps(); const comp = { id: uid('c'), title, endTs: new Date(ends).getTime(), active:true, entries:[]}; c.push(comp); setComps(c); document.getElementById('compName').value=''; document.getElementById('compEnds').value=''; toast('Competition created'); renderCompetitions(); }
+
+    function renderCompetitions(){ const el = document.getElementById('competitionsList'); el.innerHTML=''; const c = comps(); if(c.length===0){ el.innerHTML='<div class="text-sm text-gray-500">No active competitions</div>'; return; } c.forEach(comp=>{ const card=document.createElement('div'); card.className='p-4 bg-white rounded shadow'; const entries = posts().filter(p=>p.compId===comp.id && p.approved); card.innerHTML = `<h4 class='font-semibold mb-2'>${comp.title}</h4><div class='text-xs text-gray-500 mb-2'>Ends: ${comp.endTs?new Date(comp.endTs).toLocaleDateString():'-'}</div><div id='entries_${comp.id}' class='grid grid-cols-1 gap-2'>${entries.map(e=>`<div class='p-2 border rounded flex items-center gap-2'><img src='${e.dataUrl}' class='w-16 h-12 object-cover rounded' draggable='false' oncontextmenu='return false;'><div class='flex-1'><div class='text-sm font-semibold'>${e.title||e.filename}</div><div class='text-xs text-gray-500'>by ${userById(e.owner).name}</div></div><div class='text-right'><div class='text-sm font-semibold'>${(e.votes||0)}</div><button class='secondary-btn px-2 py-1 rounded text-xs' onclick="voteEntry('${comp.id}','${e.id}')">Vote</button></div></div>`).join('')}</div>`; el.appendChild(card); }); }
+
+    function voteEntry(compId, entryId){ if(!currentUser){ toast('Login to vote'); return; } const u = currentUser; if(u.bannedUntil && Date.now()<u.bannedUntil){ toast('You are banned temporarily'); return; } const votes = vs(); if(!votes[u.uid]) votes[u.uid] = {}; if(votes[u.uid][compId]){ toast('You already voted in this competition'); return; } votes[u.uid][compId] = entryId; setVotes(votes); // increment count
+      const p = posts(); const e = p.find(x=>x.id===entryId); if(e){ e.votes = (e.votes||0)+1; setPosts(p); notifyUser(e.owner, `${u.name} voted for your entry`); toast('Vote recorded'); renderCompetitions(); renderHome(); }
+    }
+
+    /* -------------------------------
+       Gallery Rendering
+       -------------------------------*/
+    function renderHome(){ renderStories(); renderReels(); // display some comp grid
+      const grid = document.getElementById('compGrid'); grid.innerHTML=''; const approved = posts().filter(p=>p.approved); approved.forEach(p=>{ const card = document.createElement('div'); card.className='bg-white rounded-lg p-3 card-hover'; card.innerHTML = `
+        <div class='watermark'><img src='${p.dataUrl}' class='w-full h-40 object-cover rounded' draggable='false' oncontextmenu='return false;'></div>
+        <div class='mt-2 flex items-center justify-between'><div><div class='font-semibold'>${p.title||p.filename}</div><div class='text-xs text-gray-500'>by ${userById(p.owner).name}</div></div><div><div class='text-sm font-semibold'>${p.votes||0}</div><button class='secondary-btn px-2 py-1 rounded text-sm' onclick="voteEntry('${p.compId||''}','${p.id}')">Vote</button></div></div>`; grid.appendChild(card); });
+      // announcements
+      const ann = DB.get('announcements') || ['Welcome to CampusHub!']; const annEl = document.getElementById('announcements'); annEl.innerHTML = ''; ann.forEach(a=>{ const li = document.createElement('li'); li.textContent = a; annEl.appendChild(li); });
+      // top winner
+      const top = posts().sort((a,b)=>(b.votes||0)-(a.votes||0))[0]; document.getElementById('topWinner').textContent = top ? `${userById(top.owner).name} — ${top.title||top.filename}` : 'No winners yet'; renderGallery(); }
+
+    function renderGallery(){ const g = document.getElementById('galleryGrid'); g.innerHTML=''; const approved = posts().filter(p=>p.approved && p.visibility==='public'); approved.forEach(p=>{ const d = document.createElement('div'); d.className='bg-white p-3 rounded-lg card-hover'; d.innerHTML=`<div class='w-full h-40 overflow-hidden'><img src='${p.dataUrl}' class='w-full h-full object-cover rounded' draggable='false' oncontextmenu='return false;'></div><div class='mt-2'><div class='font-semibold'>${p.title||p.filename}</div><div class='text-xs text-gray-500'>by ${userById(p.owner).name}</div></div>`; g.appendChild(d); }); }
+
+    /* -------------------------------
+       Dashboard / Profile
+       -------------------------------*/
+    function renderDashboard(){ if(!currentUser){ toast('Login first'); showSection('home'); return; } document.getElementById('profileAvatar').src = currentUser.avatar || 'https://placehold.co/120x120/ddd/aaa'; document.getElementById('profileName').textContent = currentUser.name; document.getElementById('profileRole').textContent = 'Role: '+currentUser.role; // feed: user's posts + friends' public posts
+      const feed = document.getElementById('myFeed'); feed.innerHTML=''; const myPosts = posts().filter(p=>p.owner===currentUser.uid); myPosts.forEach(p=>{ const el = document.createElement('div'); el.className='p-3 border rounded'; el.innerHTML = `<div class='font-semibold'>${p.title||p.filename}</div><div class='text-xs text-gray-500 mb-2'>${p.desc||''}</div><img src='${p.dataUrl}' class='w-full h-40 object-cover rounded' draggable='false' oncontextmenu='return false;'>`; feed.appendChild(el); }); // friends list
+      const fl = document.getElementById('friendsList'); fl.innerHTML=''; const frs = users().filter(u=>currentUser.following && currentUser.following.includes(u.uid)); frs.forEach(f=>{ const el = document.createElement('div'); el.className='flex items-center gap-2'; el.innerHTML=`<img src='${f.avatar||"https://placehold.co/40x40/ddd/aaa"}' class='w-8 h-8 rounded-full'><div>${f.name}</div><button class='ml-auto outline-btn px-2 py-1 rounded text-xs' onclick="unfollow('${f.uid}')">Unfollow</button>`; fl.appendChild(el); }); // activity (simple)
+      document.getElementById('myActivity').textContent = 'Uploads: '+myPosts.length + ', Votes cast: '+(Object.keys(vs()).filter(k=>k===currentUser.uid).length || 0);
+      const banInfo = document.getElementById('banInfo'); if(currentUser.bannedUntil && Date.now()<currentUser.bannedUntil){ banInfo.innerHTML = `You are banned until ${new Date(currentUser.bannedUntil).toLocaleString()}. <button class='outline-btn px-2 py-1 rounded' onclick='sendAppeal()'>Send Appeal</button>`; } else banInfo.innerHTML = 'No active bans'; }
+
+    function unfollow(uid){ if(!currentUser) return; currentUser.following = (currentUser.following||[]).filter(x=>x!==uid); const all = users(); const idx = all.findIndex(x=>x.uid===currentUser.uid); if(idx>-1) all[idx]=currentUser; saveUsers(all); DB.set('currentUser',currentUser); renderDashboard(); }
+
+    function sendAppeal(){ const msg = prompt('Explain why you should be unbanned'); if(!msg) return; DB.get('helpThreads').push({id:uid('h'), student:currentUser.uid, msgs:[{from:currentUser.uid,msg,ts:Date.now()}],status:'appeal'}); DB.set('helpThreads', DB.get('helpThreads')); toast('Appeal sent to owner'); }
+
+    /* -------------------------------
+       Messages & Chat
+       -------------------------------*/
+    function renderMessages(){ // global
+      const g = DB.get('globalChat') || []; const el = document.getElementById('globalChat'); el.innerHTML=''; g.forEach(m=>{ const d = document.createElement('div'); d.className='mb-2'; d.innerHTML = `<strong>${userById(m.uid).name}:</strong> <span class='text-sm'>${m.text}</span>`; el.appendChild(d); }); // private chats list
+      const pList = document.getElementById('privateChatList'); pList.innerHTML=''; const chats = DB.get('privateChats') || {}; Object.keys(chats).forEach(k=>{ const other = k.split('__').find(x=>x!==currentUser.uid); if(!other) return; const elb = document.createElement('div'); elb.className='p-2 border rounded cursor-pointer'; elb.textContent = 'Chat with '+userById(other).name; elb.onclick = ()=>openPrivateChat(k); pList.appendChild(elb); }); // help threads
+      const ht = DB.get('helpThreads') || []; const helpEl = document.getElementById('helpThreads'); helpEl.innerHTML=''; ht.forEach(h=>{ const div = document.createElement('div'); div.className='p-2 border rounded mb-2'; div.innerHTML = `<div class='font-semibold'>${userById(h.student).name}</div><div class='text-xs'>${h.msgs[0].msg}</div>`; helpEl.appendChild(div); }); }
+
+    function sendGlobal(){ const txt = document.getElementById('globalInput').value.trim(); if(!txt){ toast('Type a message'); return; } if(!currentUser){ toast('Login to chat'); return; } const g = DB.get('globalChat') || []; g.push({id:uid('g'), uid:currentUser.uid, text:txt, ts:Date.now()}); DB.set('globalChat', g); document.getElementById('globalInput').value=''; renderMessages(); }
+
+    function openPrivateChat(chatId){ document.getElementById('privateChatWindow').classList.remove('hidden'); const msgs = DB.get('privateChats')[chatId] || []; const pm = document.getElementById('privateMessages'); pm.innerHTML=''; msgs.forEach(m=>{ const d = document.createElement('div'); d.innerHTML = `<strong>${userById(m.uid).name}:</strong> <span>${m.text}</span>`; pm.appendChild(d); }); window.currentPrivateChat = chatId; }
+    function sendPrivate(){ const txt = document.getElementById('privateInput').value.trim(); if(!txt || !window.currentPrivateChat) return; const chats = DB.get('privateChats') || {}; chats[window.currentPrivateChat] = chats[window.currentPrivateChat] || []; chats[window.currentPrivateChat].push({id:uid('pm'), uid:currentUser.uid, text:txt, ts:Date.now()}); DB.set('privateChats', chats); document.getElementById('privateInput').value=''; openPrivateChat(window.currentPrivateChat); }
+
+    /* -------------------------------
+       Owner functions
+       -------------------------------*/
+    function renderOwner(){ document.getElementById('ownerSiteTitle').value = DB.get('branding')?.title || 'CampusHub'; document.getElementById('ownerHeroTitle').value = DB.get('branding')?.hero || 'Welcome to CampusHub'; document.getElementById('ownerLogoUrl').value = DB.get('branding')?.logo || ''; const adminList = document.getElementById('adminsList'); adminList.innerHTML=''; users().filter(u=>u.role==='admin').forEach(a=>{ const d = document.createElement('div'); d.className='flex items-center gap-2'; d.innerHTML = `<div class='flex-1'>${a.username}</div><button class='outline-btn px-2 py-1 rounded' onclick="removeAdmin('${a.uid}')">Remove</button>`; adminList.appendChild(d); }); }
+
+    function saveOwnerSettings(){ const title = document.getElementById('ownerSiteTitle').value; const hero = document.getElementById('ownerHeroTitle').value; const logo = document.getElementById('ownerLogoUrl').value; DB.set('branding',{title,hero,logo}); // apply
+      if(logo) document.getElementById('siteLogo').src = logo; if(title) document.getElementById('siteTitle').textContent = title; toast('Branding saved — users will be notified to refresh'); const v = DB.get('siteVersion')||1; DB.set('siteVersion', v+1); }
+
+    function resetBranding(){ DB.del('branding'); location.reload(); }
+
+    function createAdmin(){ const u = document.getElementById('newAdminUser').value.trim(); const p = document.getElementById('newAdminPass').value.trim(); if(!u||!p){ toast('fill'); return; } const all = users(); if(all.some(x=>x.username===u)){ toast('exists'); return; } const nu = {uid:uid('u'), username:u, password:p, role:'admin', name:u, avatar:null, followers:[],following:[],bio:'',bannedUntil:0}; all.push(nu); saveUsers(all); notifyUser(nu.uid, 'You were created as admin'); renderOwner(); toast('Admin created'); }
+    function removeAdmin(uid){ let all = users(); all = all.map(x=> x.uid===uid? {...x, role:'student'} : x ); saveUsers(all); renderOwner(); }
+
+    /* -------------------------------
+       Notifications
+       -------------------------------*/
+    function openNotifications(){ const m = document.getElementById('notifModal'); const list = document.getElementById('notifList'); list.innerHTML=''; if(!currentUser){ list.innerHTML = '<div class="text-sm text-gray-500">Login to see notifications</div>'; } else { const N = DB.get('notifications') || {}; const arr = N[currentUser.uid] || []; arr.forEach(n=>{ const d = document.createElement('div'); d.className='mb-2 text-sm'; d.textContent = n.msg; list.appendChild(d); }); } m.classList.toggle('hidden'); }
+    function closeNotif(){ document.getElementById('notifModal').classList.add('hidden'); }
+
+    /* -------------------------------
+       Utility & start
+       -------------------------------*/
+    function getStarted(){ if(currentUser) showSection('dashboard'); else openAuth('login'); }
+
+    function clearUploadForm(){ document.getElementById('uploadForm').reset(); }
+
+    // initial render
+    updateNav(); renderHome(); renderReels(); renderStories(); renderPending();
+
+    // siteVersion poll to notify users of updates
+    setInterval(()=>{
+      const v = DB.get('siteVersion'); if(v !== checkingSiteVersion){ // update detected
+        checkingSiteVersion = v; // prompt user
+        // save drafts: upload fields
+        const draft = { owner: currentUser? currentUser.uid : null, title: document.getElementById('uploadTitle')?.value, desc: document.getElementById('uploadDesc')?.value, visibility: document.getElementById('uploadVisibility')?.value };
+        DB.set('draft_upload', draft);
+        if(confirm('Site was updated by owner — Refresh now to load changes?')) location.reload(); else toast('Your draft is saved and will restore'); }
+    },8000);
+
+    // expose some functions for easy console testing
+    window.DB = DB; window.users = users; window.login = login; window.register = register; window.voteEntry = voteEntry; window.createCompetition = createCompetition; window.openAuth = openAuth; window.showSection = showSection; window.renderHome = renderHome; window.approveUpload = approveUpload; window.rejectUpload = rejectUpload; window.submitUpload = submitUpload; window.quickUpload = function(){ document.getElementById('quickUploadForm').querySelector('input[type=file]').click(); alert('Use full upload for approved posts'); };
+  </script></body>
+</html>
